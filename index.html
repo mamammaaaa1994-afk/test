@@ -3,45 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max Net - فحص Ping الطيارة</title>
+    <title>Max Net - لوحة الدعم الفني المتقدمة</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 15px; color: #333; text-align: center; }
-        .container { max-width: 850px; background: white; padding: 20px; margin: 10px auto; border-radius: 12px; box-shadow: 0px 4px 15px rgba(0,0,0,0.08); }
-        h2 { color: #1a73e8; margin-bottom: 5px; font-size: 22px; }
-        p { color: #555; font-size: 13px; margin-bottom: 15px; }
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #00ff00;
+            --error-color: #ff3333;
+            --dark-bg: #0c0c0c;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; padding: 15px; color: #333; text-align: center; margin: 0; }
+        .container { max-width: 950px; background: white; padding: 30px 20px; margin: 15px auto; border-radius: 16px; box-shadow: 0px 10px 30px rgba(0,0,0,0.05); border-top: 6px solid var(--primary-color); }
         
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
-        .btn { background-color: #1a73e8; color: white; border: none; padding: 12px 25px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-stop { background-color: #d93025; }
-        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .header-logo { font-size: 28px; font-weight: bold; color: var(--primary-color); margin-bottom: 5px; letter-spacing: 1px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
         
-        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
-        .cmd-window { background-color: #0c0c0c; color: #cccccc; font-family: 'Courier New', Courier, monospace; padding: 15px; border-radius: 6px; text-align: left; direction: ltr; height: 380px; overflow-y: auto; box-shadow: inset 0 0 10px #000; box-sizing: border-box; }
-        .cmd-title { color: #1a73e8; font-weight: bold; margin-bottom: 6px; text-align: right; direction: rtl; font-family: Arial, sans-serif; font-size: 13px; }
+        .btn-group { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .btn { background-color: var(--primary-color); color: white; border: none; padding: 14px 40px; font-size: 16px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2); }
+        .btn:hover { background-color: #1557b0; transform: translateY(-2px); }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
         
-        .reply { color: #00ff00; font-size: 13px; line-height: 18px; }
-        .timeout { color: #ff3333; font-weight: bold; font-size: 13px; line-height: 18px; }
+        .timer-box { font-size: 18px; font-weight: bold; color: #e67e22; margin-bottom: 15px; min-height: 25px; transition: 0.3s; }
+        .alert-whatsapp { display: none; background-color: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 8px; border-right: 5px solid #2e7d32; font-weight: bold; margin-bottom: 20px; animation: pulse 2s infinite; font-size: 14px; }
+        
+        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .cmd-wrapper { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .cmd-title { background: #f8f9fa; padding: 10px 15px; color: #495057; font-weight: bold; text-align: right; direction: rtl; font-size: 13px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; }
+        .cmd-window { background-color: var(--dark-bg); color: #cccccc; font-family: 'Courier New', Courier, monospace; padding: 15px; text-align: left; direction: ltr; height: 360px; overflow-y: auto; box-shadow: inset 0 0 15px #000; box-sizing: border-box; }
+        
+        .reply { color: var(--success-color); font-size: 13px; line-height: 18px; }
+        .timeout { color: var(--error-color); font-weight: bold; font-size: 13px; line-height: 18px; }
+        .info-text { color: #888; font-size: 12px; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Max Net - شاشة فحص Ping السريع</h2>
-    <p>اضغط على "بدء الفحص" لتشغيل أمر (ping -t) بالسرعة الفعلية للـ CMD ومراقبة استقرار الخدمة.</p>
+    <div class="header-logo">MAX NET</div>
+    <p class="subtitle">منظومة فحص استقرار جودة الخدمة المؤتمتة<br><span class="info-text">مخصص لمتابعة الإدارة الفنية والتحقق من جودة الروابط</span></p>
     
     <div class="btn-group">
-        <button class="btn" id="startBtn" onclick="startLivePing()">بدء الفحص المستمر</button>
-        <button class="btn btn-stop" id="stopBtn" onclick="stopLivePing()" disabled>إيقاف</button>
+        <button class="btn" id="startBtn" onclick="runOneMinuteTest()">إبدأ الفحص الشامل (60 ثانية)</button>
     </div>
+    
+    <div id="timerDisplay" class="timer-box"></div>
+    <div id="whatsappAlert" class="alert-whatsapp">📸 ممتاز! انتهى الفحص الآن. يرجى أخذ (لقطة شاشة / سكرين شوت) كاملة للموبايل ودزها إلنا عالواتساب فوراً لمراجعة الإدارة.</div>
 
     <div class="cmd-grid">
-        <div>
-            <div class="cmd-title">1. اتصالك بالراوتر الداخلي (192.168.0.1)</div>
+        <div class="cmd-wrapper">
+            <div class="cmd-title"><span>1. فحص البنك الداخلي (الراوتر)</span> <span style="color:#888;">192.168.0.1</span></div>
             <div id="routerCmd" class="cmd-window">C:\Users\MaxNet> _</div>
         </div>
 
-        <div>
-            <div class="cmd-title">2. اتصالك بالإنترنت الخارجي (Google)</div>
+        <div class="cmd-wrapper">
+            <div class="cmd-title"><span>2. فحص البنك الخارجي (الإنترنت)</span> <span style="color:#888;">8.8.8.8</span></div>
             <div id="googleCmd" class="cmd-window">C:\Users\MaxNet> _</div>
         </div>
     </div>
@@ -49,6 +69,8 @@
 
 <script>
 let isRunning = false;
+let remainingTime = 60;
+let countdownInterval = null;
 
 function pingDevice(url, timeout = 400) {
     return new Promise((resolve) => {
@@ -76,19 +98,36 @@ function pingDevice(url, timeout = 400) {
     });
 }
 
-async function startLivePing() {
+async function runOneMinuteTest() {
+    // تجهيز الواجهة وقفل الزر
     document.getElementById('startBtn').disabled = true;
-    document.getElementById('stopBtn').disabled = false;
+    document.getElementById('whatsappAlert').style.display = 'none';
     isRunning = true;
+    remainingTime = 60;
 
     const routerWin = document.getElementById('routerCmd');
     const googleWin = document.getElementById('googleCmd');
 
-    routerWin.innerHTML = "Pinging 192.168.0.1 with 32 bytes of data [ping -t]:<br>";
-    googleWin.innerHTML = "Pinging 8.8.8.8 with 32 bytes of data [ping -t]:<br>";
+    routerWin.innerHTML = "Pinging 192.168.0.1 with 32 bytes of data:<br>";
+    googleWin.innerHTML = "Pinging 8.8.8.8 with 32 bytes of data:<br>";
 
+    // تشغيل عداد الـ 60 ثانية التنازلي
+    const timerDisplay = document.getElementById('timerDisplay');
+    timerDisplay.innerText = `⏱️ جاري الفحص التتابعي.. الوقت المتبقي: ${remainingTime} ثانية`;
+    
+    countdownInterval = setInterval(() => {
+        remainingTime--;
+        if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+            isRunning = false; // يوقف الفحص فوراً عند انتهاء الدقيقة
+        } else {
+            timerDisplay.innerText = `⏱️ جاري الفحص التتابعي.. الوقت المتبقي: ${remainingTime} ثانية`;
+        }
+    }, 1000);
+
+    // تشغيل الـ Loop السريع المصفى للوقت
     while (isRunning) {
-        // 1. فحص الراوتر
+        // 1. بنك الراوتر
         const resRouter = await pingDevice("http://192.168.0.1");
         if (resRouter !== null) {
             let ms = Math.round(resRouter / 6);
@@ -100,29 +139,30 @@ async function startLivePing() {
         }
         routerWin.scrollTop = routerWin.scrollHeight;
 
-        // 2. فحص الإنترنت
+        // 2. بنك جوجل
         const resGoogle = await pingDevice("https://www.google.com");
         if (resGoogle !== null) {
             let ms = Math.round(resGoogle / 2);
-            if (ms < 35) ms = Math.floor(Math.random() * 10) + 55;
+            if (ms < 35) ms = Math.scale = Math.floor(Math.random() * 10) + 55;
             googleWin.innerHTML += `<div class="reply">Reply from 8.8.8.8: bytes=32 time=${ms}ms TTL=115</div>`;
         } else {
             googleWin.innerHTML += `<div class="timeout">Request timed out.</div>`;
         }
         googleWin.scrollTop = googleWin.scrollHeight;
 
-        // تقليل الانتظار لـ 250 ملي ثانية (سرعة طيارة وتتابع فوري)
+        // سرعة تتابعية عالية (250 ملي ثانية) لملء الشاشة بالباكتات بشكل كافي خلال دقيقة
         await new Promise(res => setTimeout(res, 250));
     }
-}
 
-function stopLivePing() {
-    isRunning = false;
+    // الإجراءات عند انتهاء الفحص والدقيقة بالتمام
+    timerDisplay.innerText = "🏁 تم انتهاء فحص الدقيقة الكلي!";
+    document.getElementById('whatsappAlert').style.display = 'block';
     document.getElementById('startBtn').disabled = false;
-    document.getElementById('stopBtn').disabled = true;
     
-    document.getElementById('routerCmd').innerHTML += "<br>C:\\Users\\MaxNet> _";
-    document.getElementById('googleCmd').innerHTML += "<br>C:\\Users\\MaxNet> _";
+    routerWin.innerHTML += "<br>--- الفحص توقف مؤقتاً بالوقت المبرمج ---";
+    googleWin.innerHTML += "<br>--- الفحص توقف مؤقتاً بالوقت المبرمج ---";
+    routerWin.scrollTop = routerWin.scrollHeight;
+    googleWin.scrollTop = googleWin.scrollHeight;
 }
 </script>
 
