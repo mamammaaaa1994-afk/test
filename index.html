@@ -3,57 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max Net - فحص الـ Ping المتقدم</title>
+    <title>Max Net - شاشة فحص البنك (CMD)</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 500px; background: white; padding: 25px; margin: 20px auto; border-radius: 12px; box-shadow: 0px 4px 15px rgba(0,0,0,0.08); }
-        h2 { color: #1a73e8; margin-bottom: 5px; }
-        p.subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
-        .btn { background-color: #1a73e8; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.2s; }
-        .btn:hover { background-color: #1557b0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; color: #333; text-align: center; }
+        .container { max-width: 900px; background: white; padding: 25px; margin: 20px auto; border-radius: 12px; box-shadow: 0px 4px 15px rgba(0,0,0,0.08); }
+        h2 { color: #1a73e8; }
+        .btn { background-color: #1a73e8; color: white; border: none; padding: 14px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
         .btn:disabled { background-color: #ccc; cursor: not-allowed; }
-        .result-box { margin-top: 15px; padding: 15px; border-radius: 8px; text-align: right; display: none; border-right: 5px solid #ccc; }
-        .status { font-weight: bold; margin-top: 5px; font-size: 14px; font-family: monospace; direction: ltr; text-align: right; }
-        .progress-text { font-size: 13px; color: #555; margin-top: 10px; font-weight: bold; }
-        .good { background-color: #e6f4ea; color: #137333; border-right-color: #137333; }
-        .bad { background-color: #fce8e6; color: #c5221f; border-right-color: #c5221f; }
-        .checking { background-color: #e8f0fe; color: #1a73e8; border-right-color: #1a73e8; }
+        
+        /* تصميم يحاكي الشاشة السوداء مالت الـ CMD */
+        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-top: 20px; }
+        .cmd-window { background-color: #0c0c0c; color: #cccccc; font-family: 'Courier New', Courier, monospace; padding: 15px; border-radius: 6px; text-align: left; direction: ltr; height: 350px; overflow-y: auto; box-shadow: inset 0 0 10px #000; }
+        .cmd-title { color: #1a73e8; font-weight: bold; margin-bottom: 8px; text-align: right; direction: rtl; font-family: Arial, sans-serif; }
+        
+        .reply { color: #00ff00; } /* لون أخضر للباكتات الناجحة */
+        .timeout { color: #ff3333; font-weight: bold; } /* لون أحمر للـ Timed out */
+        .summary { color: #ffff00; margin-top: 10px; border-top: 1px dashed #555; padding-top: 5px; } /* لون أصفر للملخص */
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Max Net - مراقبة استقرار الاتصال</h2>
-    <p class="subtitle">هذا الفحص يقوم بإرسال 25 بنك متتالي (ثانية بثانية) لقياس التقطيع وضياع الباكتات بدقة الـ CMD.</p>
+    <h2>Max Net - نظام مراقبة الباكتات التتابعي</h2>
+    <p>اضغط على الزر أدناه لإرسال 25 باكت فحص متتالية (بمعدل باكت كل ثانية) ومراقبة استقرار الخدمة سطر بسطر.</p>
     
-    <button class="btn" id="startBtn" onclick="startAdvancedTest()">إبدأ فحص الـ 25 باكت</button>
-    <div id="globalProgress" class="progress-text"></div>
+    <button class="btn" id="startBtn" onclick="runTrueCmdTest()">إبدأ فحص الـ 25 طلب</button>
 
-    <div id="routerBox" class="result-box">
-        <b>1. جهاز الراوتر المنزلي (192.168.0.1):</b>
-        <div id="routerStatus" class="status">بانتظار البدء...</div>
-    </div>
+    <div class="cmd-grid">
+        <div>
+            <div class="cmd-title">1. بنك الراوتر الداخلي (192.168.0.1)</div>
+            <div id="routerCmd" class="cmd-window">Microsoft Windows [Version 10.0]<br>C:\Users\MaxNet> _</div>
+        </div>
 
-    <div id="dnsBox" class="result-box">
-        <b>2. سيرفر شبكة الشركة (109.224.14.2):</b>
-        <div id="dnsStatus" class="status">بانتظار البدء...</div>
-    </div>
+        <div>
+            <div class="cmd-title">2. بنك سيرفر الشركة (109.224.14.2)</div>
+            <div id="dnsCmd" class="cmd-window">Microsoft Windows [Version 10.0]<br>C:\Users\MaxNet> _</div>
+        </div>
 
-    <div id="googleBox" class="result-box">
-        <b>3. بوابة الإنترنت العالمية (8.8.8.8):</b>
-        <div id="googleStatus" class="status">بانتظار البدء...</div>
+        <div>
+            <div class="cmd-title">3. بنك الإنترنت العالمي (8.8.8.8)</div>
+            <div id="googleCmd" class="cmd-window">Microsoft Windows [Version 10.0]<br>C:\Users\MaxNet> _</div>
+        </div>
     </div>
 </div>
 
 <script>
-// دالة لإرسال بنك مفرد ومنع الكاش تماماً مع تايم آوت 900 ملي ثانية
 function sendSinglePing(url) {
     return new Promise((resolve) => {
         const start = Date.now();
         const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 900);
+        const id = setTimeout(() => controller.abort(), 950);
 
-        fetch(url + "?t=" + start + Math.random(), { mode: "no-cors", cache: "no-store", signal: controller.signal })
+        fetch(url + "?nocache=" + start + Math.random(), { mode: "no-cors", cache: "no-store", signal: controller.signal })
             .then(() => {
                 clearTimeout(id);
                 resolve(Date.now() - start);
@@ -61,43 +62,36 @@ function sendSinglePing(url) {
             .catch(() => {
                 clearTimeout(id);
                 let duration = Date.now() - start;
-                if (duration < 900) {
-                    resolve(duration); // المتصفح يعترض أحياناً لكن الوقت المستغرق صحيح
-                } else {
-                    resolve(null); // Request Timed Out (ضياع باكت)
-                }
+                if (duration < 950) { resolve(duration); } 
+                else { resolve(null); }
             });
     });
 }
 
-// دالة للنوم (الانتظار) لمدة ثانية بين البنكات
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-async function startAdvancedTest() {
+async function runTrueCmdTest() {
     const btn = document.getElementById('startBtn');
-    const progressDiv = document.getElementById('globalProgress');
     btn.disabled = true;
 
     const targets = {
-        router: { box: document.getElementById('routerBox'), status: document.getElementById('routerStatus'), url: "http://192.168.0.1", pings: [], lost: 0, divisor: 4, baseMin: 1 },
-        dns: { box: document.getElementById('dnsBox'), status: document.getElementById('dnsStatus'), url: "http://109.224.14.2", pings: [], lost: 0, divisor: 3, baseMin: 5 },
-        google: { box: document.getElementById('googleBox'), status: document.getElementById('googleStatus'), url: "https://www.google.com", pings: [], lost: 0, divisor: 2, baseMin: 35 }
+        router: { win: document.getElementById('routerCmd'), url: "http://192.168.0.1", ip: "192.168.0.1", pings: [], lost: 0, divisor: 4, baseMin: 1 },
+        dns: { win: document.getElementById('dnsCmd'), url: "http://109.224.14.2", ip: "109.224.14.2", pings: [], lost: 0, divisor: 3, baseMin: 5 },
+        google: { win: document.getElementById('googleCmd'), url: "https://www.google.com", ip: "8.8.8.8", pings: [], lost: 0, divisor: 2, baseMin: 35 }
     };
 
-    // تهيئة الواجهة
+    // تهيئة الشاشات السوداء وتصفير النصوص
     for (let key in targets) {
-        targets[key].box.style.display = 'block';
-        targets[key].box.className = 'result-box checking';
-        targets[key].status.innerText = 'جاري تهيئة الفحص...';
+        targets[key].win.innerHTML = `Pinging ${targets[key].ip} with 32 bytes of data:<br>`;
+        targets[key].pings = [];
+        targets[key].lost = 0;
     }
 
-    const totalPackets = 25;
+    const totalPings = 25;
 
-    // حلقة التكرار 25 مرة (ثانية بثانية)
-    for (let i = 1; i <= totalPackets; i++) {
-        progressDiv.innerText = `جاري الفحص الآن: باكت رقم (${i} من ${totalPackets})... يرجى الانتظار`;
-
-        // إرسال البنك لكل الأهداف في هذه اللفة
+    // الحلقة المسؤولة عن إرسال الـ 25 طلب بالتسلسل (باكت وراء باكت)
+    for (let i = 1; i <= totalPings; i++) {
+        
         const promises = [
             sendSinglePing(targets.router.url),
             sendSinglePing(targets.dns.url),
@@ -106,51 +100,13 @@ async function startAdvancedTest() {
 
         const results = await Promise.all(promises);
 
-        // معالجة نتيجة الراوتر
-        if (results[0] !== null) {
-            let ms = Math.max(targets.router.baseMin, Math.round(results[0] / targets.router.divisor));
-            targets.router.pings.push(ms);
-        } else { targets.router.lost++; }
+        // 1. معالجة سطر الراوتر
+        printLine(targets.router, results[0], i);
+        // 2. معالجة سطر DNS
+        printLine(targets.dns, results[1], i);
+        // 3. معالجة سطر جوجل
+        printLine(targets.google, results[2], i);
 
-        // معالجة نتيجة DNS
-        if (results[1] !== null) {
-            let ms = Math.max(targets.dns.baseMin, Math.round(results[1] / targets.dns.divisor));
-            targets.dns.pings.push(ms);
-        } else { targets.dns.lost++; }
-
-        // معالجة نتيجة جوجل
-        if (results[2] !== null) {
-            let ms = Math.max(targets.google.baseMin, Math.round(results[2] / targets.google.divisor));
-            targets.google.pings.push(ms);
-        } else { targets.google.lost++; }
-
-        // تحديث الواجهة للمشترك بشكل مباشر أثناء الفحص
-        updateLiveStatus(targets.router, totalPackets, i, "الراوتر المنزلي");
-        updateLiveStatus(targets.dns, totalPackets, i, "سيرفر الشركة");
-        updateLiveStatus(targets.google, totalPackets, i, "جوجل العالمي");
-
-        // الانتظار لمدة 1 ثانية قبل إرسال الباكت التالية (مثل الـ CMD تماماً)
-        await sleep(1000);
-    }
-
-    // انتهاء الفحص بالكامل وإظهار التقييم النهائي بناءً على الـ Packet Loss
-    progressDiv.innerText = "✅ اكتمل الفحص الشامل!";
-    btn.disabled = false;
-
-    finalizeColor(targets.router, 2);  // إذا لوز أكثر من 2 باكت يعتبر الراوتر يعلق
-    finalizeColor(targets.dns, 2);     
-    finalizeColor(targets.google, 3);
-}
-
-function updateLiveStatus(target, total, current, name) {
-    let lossPercent = Math.round((target.lost / current) * 105);
-    if(lossPercent > 100) lossPercent = 100;
-    
-    let avg = target.pings.length > 0 ? Math.round(target.pings.reduce((a,b)=>a+b, 0) / target.pings.length) : 0;
-    
-    target.status.innerHTML = `Live -> Ping: ${avg}ms | Packet Loss: ${lossPercent}% | Sent: ${current}/${total}`;
-}
-
-function finalizeColor(target, maxAllowedLost) {
-    target.box.className = 'result-box';
-    let avg = target.pings.length > 0 ? Math.round(target.pings.reduce((
+        // سحب الشاشة التلقائي لأسفل (Auto Scroll) حتى يظل السطر الجديد ظاهر
+        targets.router.win.scrollTop = targets.router.win.scrollHeight;
+        targets.dns.win.scrollTop = targets.dns.win.scrollHeight
