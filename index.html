@@ -51,17 +51,15 @@
 </div>
 
 <script>
-// دالة الفحص باستخدام الـ Image لتخطي حظر الـ Mixed Content والـ CORS بالمتصفحات
 function pingWithImage(url, timeout = 950) {
     return new Promise((resolve) => {
         const start = Date.now();
         const img = new Image();
         let timer = setTimeout(() => {
-            img.src = ""; // إلغاء الطلب عند انتهاء الوقت
-            resolve(null); // Request Timed Out
+            img.src = "";
+            resolve(null);
         }, timeout);
 
-        // كسر الكاش بإضافة متغير عشوائي تماماً مع التايمستامب
         img.onload = img.onerror = function() {
             clearTimeout(timer);
             let duration = Date.now() - start;
@@ -72,7 +70,6 @@ function pingWithImage(url, timeout = 950) {
             }
         };
 
-        // تشغيل الطلب
         img.src = url + "/favicon.ico?nocache=" + start + Math.random();
     });
 }
@@ -90,7 +87,6 @@ async function runTrueCmdTest() {
         google: { win: document.getElementById('googleCmd'), url: "https://www.google.com", ip: "8.8.8.8", pings: [], lost: 0, divisor: 2, baseMin: 32 }
     };
 
-    // تهيئة الشاشات
     for (let key in targets) {
         targets[key].win.innerHTML = `Pinging ${targets[key].ip} with 32 bytes of data:<br>`;
         targets[key].pings = [];
@@ -102,7 +98,6 @@ async function runTrueCmdTest() {
     for (let i = 1; i <= totalPings; i++) {
         progressText.innerText = `جاري إرسال الباكت رقم (${i} من ${totalPings})...`;
 
-        // إرسال الثلاث بنكات معاً في نفس اللحظة من خلال الـ Image
         const promises = [
             pingWithImage(targets.router.url),
             pingWithImage(targets.dns.url),
@@ -111,23 +106,20 @@ async function runTrueCmdTest() {
 
         const results = await Promise.all(promises);
 
-        // طباعة الأسطر وتحديث الشاشات
         printLine(targets.router, results[0], i);
         printLine(targets.dns, results[1], i);
         printLine(targets.google, results[2], i);
 
-        // نزول تلقائي لأسفل الشاشة السوداء
+        // تصحيح السحب التلقائي هنا
         targets.router.win.scrollTop = targets.router.win.scrollHeight;
-        targets.dns.win.win.scrollTop = targets.dns.win.scrollHeight;
+        targets.dns.win.scrollTop = targets.dns.win.scrollHeight;
         targets.google.win.scrollTop = targets.google.win.scrollHeight;
 
-        // انتظار ثانية واحدة قبل اللفة القادمة
         await sleep(1000);
     }
 
     progressText.innerText = "✅ اكتمل فحص الـ 25 باكت بنجاح!";
     
-    // طباعة الخلاصة النهائية لكل شاشة
     for (let key in targets) {
         printSummary(targets[key], totalPings);
         targets[key].win.scrollTop = targets[key].win.scrollHeight;
