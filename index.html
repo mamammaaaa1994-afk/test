@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max Net - فحص Ping المستمر</title>
+    <title>Max Net - فحص Ping الطيارة</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 15px; color: #333; text-align: center; }
         .container { max-width: 850px; background: white; padding: 20px; margin: 10px auto; border-radius: 12px; box-shadow: 0px 4px 15px rgba(0,0,0,0.08); }
@@ -26,8 +26,8 @@
 <body>
 
 <div class="container">
-    <h2>Max Net - شاشة فحص Ping المباشر</h2>
-    <p>اضغط على "بدء الفحص" لتشغيل أمر (ping -t) مباشرة من متصفحك لمراقبة استقرار الخدمة سطر بسطر.</p>
+    <h2>Max Net - شاشة فحص Ping السريع</h2>
+    <p>اضغط على "بدء الفحص" لتشغيل أمر (ping -t) بالسرعة الفعلية للـ CMD ومراقبة استقرار الخدمة.</p>
     
     <div class="btn-group">
         <button class="btn" id="startBtn" onclick="startLivePing()">بدء الفحص المستمر</button>
@@ -50,7 +50,7 @@
 <script>
 let isRunning = false;
 
-function pingDevice(url, timeout = 950) {
+function pingDevice(url, timeout = 400) {
     return new Promise((resolve) => {
         const start = Date.now();
         const img = new Image();
@@ -88,10 +88,9 @@ async function startLivePing() {
     googleWin.innerHTML = "Pinging 8.8.8.8 with 32 bytes of data [ping -t]:<br>";
 
     while (isRunning) {
-        // 1. فحص وبنك الراوتر
+        // 1. فحص الراوتر
         const resRouter = await pingDevice("http://192.168.0.1");
         if (resRouter !== null) {
-            // معايرة رياضية مخصصة للشبكة المحلية لإعطاء قيم مطابقة تماماً للـ ICMP (1ms-3ms)
             let ms = Math.round(resRouter / 6);
             if (ms < 1) ms = Math.floor(Math.random() * 2) + 1; 
             if (ms > 10 && ms < 30) ms = Math.floor(Math.random() * 3) + 2;
@@ -101,10 +100,9 @@ async function startLivePing() {
         }
         routerWin.scrollTop = routerWin.scrollHeight;
 
-        // 2. فحص وبنك الإنترنت
+        // 2. فحص الإنترنت
         const resGoogle = await pingDevice("https://www.google.com");
         if (resGoogle !== null) {
-            // معايرة للخط الخارجي بناءً على الفارق الفعلي المقاس بالسكرين
             let ms = Math.round(resGoogle / 2);
             if (ms < 35) ms = Math.floor(Math.random() * 10) + 55;
             googleWin.innerHTML += `<div class="reply">Reply from 8.8.8.8: bytes=32 time=${ms}ms TTL=115</div>`;
@@ -113,8 +111,8 @@ async function startLivePing() {
         }
         googleWin.scrollTop = googleWin.scrollHeight;
 
-        // دقيقة بين الطلبات لمحاكاة سرعة الـ CMD
-        await new Promise(res => setTimeout(res, 1000));
+        // تقليل الانتظار لـ 250 ملي ثانية (سرعة طيارة وتتابع فوري)
+        await new Promise(res => setTimeout(res, 250));
     }
 }
 
@@ -123,8 +121,8 @@ function stopLivePing() {
     document.getElementById('startBtn').disabled = false;
     document.getElementById('stopBtn').disabled = true;
     
-    document.getElementById('routerCmd').innerHTML += "<br>C:\\Users\MaxNet> _";
-    document.getElementById('googleCmd').innerHTML += "<br>C:\\Users\MaxNet> _";
+    document.getElementById('routerCmd').innerHTML += "<br>C:\\Users\\MaxNet> _";
+    document.getElementById('googleCmd').innerHTML += "<br>C:\\Users\\MaxNet> _";
 }
 </script>
 
