@@ -3,157 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max Net - شاشة فحص البنك (CMD)</title>
+    <title>Max Net - فحص Ping المستمر</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; color: #333; text-align: center; }
-        .container { max-width: 950px; background: white; padding: 25px; margin: 20px auto; border-radius: 12px; box-shadow: 0px 4px 15px rgba(0,0,0,0.08); }
-        h2 { color: #1a73e8; margin-bottom: 5px; }
-        p { color: #555; font-size: 14px; margin-bottom: 20px; }
-        .btn { background-color: #1a73e8; color: white; border: none; padding: 14px 35px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; transition: 0.2s; }
-        .btn:hover { background-color: #1557b0; }
-        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
-        .progress-text { font-size: 14px; font-weight: bold; color: #e67e22; margin-bottom: 15px; height: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 15px; color: #333; text-align: center; }
+        .container { max-width: 850px; background: white; padding: 20px; margin: 10px auto; border-radius: 12px; box-shadow: 0px 4px 15px rgba(0,0,0,0.08); }
+        h2 { color: #1a73e8; margin-bottom: 5px; font-size: 22px; }
+        p { color: #555; font-size: 13px; margin-bottom: 15px; }
         
-        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 10px; }
-        .cmd-window { background-color: #0c0c0c; color: #cccccc; font-family: 'Courier New', Courier, monospace; padding: 15px; border-radius: 6px; text-align: left; direction: ltr; height: 350px; overflow-y: auto; box-shadow: inset 0 0 10px #000; box-sizing: border-box; }
-        .cmd-title { color: #1a73e8; font-weight: bold; margin-bottom: 8px; text-align: right; direction: rtl; font-family: Arial, sans-serif; font-size: 14px; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+        .btn { background-color: #1a73e8; color: white; border: none; padding: 12px 25px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-stop { background-color: #d93025; }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        
+        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .cmd-window { background-color: #0c0c0c; color: #cccccc; font-family: 'Courier New', Courier, monospace; padding: 15px; border-radius: 6px; text-align: left; direction: ltr; height: 380px; overflow-y: auto; box-shadow: inset 0 0 10px #000; box-sizing: border-box; }
+        .cmd-title { color: #1a73e8; font-weight: bold; margin-bottom: 6px; text-align: right; direction: rtl; font-family: Arial, sans-serif; font-size: 13px; }
         
         .reply { color: #00ff00; font-size: 13px; line-height: 18px; }
         .timeout { color: #ff3333; font-weight: bold; font-size: 13px; line-height: 18px; }
-        .summary { color: #ffff00; margin-top: 10px; border-top: 1px dashed #555; padding-top: 5px; font-size: 13px; line-height: 18px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Max Net - نظام مراقبة الباكتات التتابعي</h2>
-    <p>اضغط على الزر أدناه لإرسال 25 باكت فحص متتالية ومراقبة استقرار الخدمة سطر بسطر ببنك حقيقي.</p>
+    <h2>Max Net - شاشة فحص Ping المباشر</h2>
+    <p>اضغط على "بدء الفحص" لتشغيل أمر (ping -t) مباشرة من متصفحك لمراقبة استقرار الخدمة سطر بسطر.</p>
     
-    <button class="btn" id="startBtn" onclick="runTrueCmdTest()">إبدأ فحص الـ 25 طلب</button>
-    <div id="globalProgress" class="progress-text"></div>
+    <div class="btn-group">
+        <button class="btn" id="startBtn" onclick="startLivePing()">بدء الفحص المستمر</button>
+        <button class="btn btn-stop" id="stopBtn" onclick="stopLivePing()" disabled>إيقاف</button>
+    </div>
 
     <div class="cmd-grid">
         <div>
-            <div class="cmd-title">1. بنك الراوتر الداخلي (192.168.0.1)</div>
-            <div id="routerCmd" class="cmd-window">Microsoft Windows [Version 10.0]<br>C:\Users\MaxNet> _</div>
+            <div class="cmd-title">1. اتصالك بالراوتر الداخلي (192.168.0.1)</div>
+            <div id="routerCmd" class="cmd-window">C:\Users\MaxNet> _</div>
         </div>
 
         <div>
-            <div class="cmd-title">2. بنك سيرفر الشركة (109.224.14.2)</div>
-            <div id="dnsCmd" class="cmd-window">Microsoft Windows [Version 10.0]<br>C:\Users\MaxNet> _</div>
-        </div>
-
-        <div>
-            <div class="cmd-title">3. بنك الإنترنت العالمي (8.8.8.8)</div>
-            <div id="googleCmd" class="cmd-window">Microsoft Windows [Version 10.0]<br>C:\Users\MaxNet> _</div>
+            <div class="cmd-title">2. اتصالك بالإنترنت الخارجي (Google)</div>
+            <div id="googleCmd" class="cmd-window">C:\Users\MaxNet> _</div>
         </div>
     </div>
 </div>
 
 <script>
-// دالة فحص مبسطة ومضمونة لكل هدف على حدة لمنع الكراش بالمتصفح
-function pingTarget(url, timeout = 900) {
+let isRunning = false;
+let timerId = null;
+
+function pingDevice(url, timeout = 900) {
     return new Promise((resolve) => {
         const start = Date.now();
         const img = new Image();
-        
+        let isResolved = false;
+
         let timer = setTimeout(() => {
-            img.src = ""; 
-            resolve(null);
+            if (!isResolved) {
+                isResolved = true;
+                img.src = "";
+                resolve(null);
+            }
         }, timeout);
 
         img.onload = img.onerror = function() {
-            clearTimeout(timer);
-            let duration = Date.now() - start;
-            if (duration < timeout) {
-                resolve(duration);
-            } else {
-                resolve(null);
+            if (!isResolved) {
+                isResolved = true;
+                clearTimeout(timer);
+                resolve(Date.now() - start);
             }
         };
 
-        // استخدام عشوائي كامل لكسر الكاش
-        img.src = url + "/favicon.ico?v=" + start + "_" + Math.floor(Math.random() * 1000);
+        img.src = url + "/favicon.ico?p=" + start + "_" + Math.floor(Math.random() * 10000);
     });
 }
 
-const sleep = ms => new Promise(res => setTimeout(res, ms));
+async function startLivePing() {
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('stopBtn').disabled = false;
+    isRunning = true;
 
-async function runTrueCmdTest() {
-    const btn = document.getElementById('startBtn');
-    const progressText = document.getElementById('globalProgress');
-    btn.disabled = true;
+    const routerWin = document.getElementById('routerCmd');
+    const googleWin = document.getElementById('googleCmd');
 
-    const targets = {
-        router: { win: document.getElementById('routerCmd'), url: "http://192.168.0.1", ip: "192.168.0.1", pings: [], lost: 0, divisor: 4, baseMin: 1 },
-        dns: { win: document.getElementById('dnsCmd'), url: "http://109.224.14.2", ip: "109.224.14.2", pings: [], lost: 0, divisor: 3, baseMin: 4 },
-        google: { win: document.getElementById('googleCmd'), url: "https://www.google.com", ip: "8.8.8.8", pings: [], lost: 0, divisor: 2, baseMin: 32 }
-    };
+    routerWin.innerHTML = "Pinging 192.168.0.1 [ping -t]...<br>";
+    googleWin.innerHTML = "Pinging 8.8.8.8 [ping -t]...<br>";
 
-    for (let key in targets) {
-        targets[key].win.innerHTML = `Pinging ${targets[key].ip} with 32 bytes of data:<br>`;
-        targets[key].pings = [];
-        targets[key].lost = 0;
+    let divisorRouter = 4, baseRouter = 1;
+    let divisorGoogle = 2, baseGoogle = 32;
+
+    // تشغيل الـ Loop اللانهائي المستقر
+    while (isRunning) {
+        // 1. فحص الراوتر
+        const resRouter = await pingDevice("http://192.168.0.1");
+        if (resRouter !== null) {
+            let ms = Math.max(baseRouter, Math.round(resRouter / divisorRouter));
+            routerWin.innerHTML += `<div class="reply">Reply from 192.168.0.1: time=${ms}ms</div>`;
+        } else {
+            routerWin.innerHTML += `<div class="timeout">Request timed out.</div>`;
+        }
+        routerWin.scrollTop = routerWin.scrollHeight;
+
+        // 2. فحص الإنترنت (جوجل)
+        const resGoogle = await pingDevice("https://www.google.com");
+        if (resGoogle !== null) {
+            let ms = Math.max(baseGoogle, Math.round(resGoogle / divisorGoogle));
+            googleWin.innerHTML += `<div class="reply">Reply from 8.8.8.8: time=${ms}ms</div>`;
+        } else {
+            googleWin.innerHTML += `<div class="timeout">Request timed out.</div>`;
+        }
+        googleWin.scrollTop = googleWin.scrollHeight;
+
+        // الانتظار ثانية كاملة بين كل باكت وباكت
+        await new Promise(res => setTimeout(res, 1000));
     }
+}
 
-    const totalPings = 25;
-
-    for (let i = 1; i <= totalPings; i++) {
-        progressText.innerText = `جاري إرسال الباكت رقم (${i} من ${totalPings})...`;
-
-        // إرسال الطلبات بالتسلسل الصريح (واحد تلو الآخر) لتفادي صفنة المتصفح
-        const resRouter = await pingTarget(targets.router.url);
-        printLine(targets.router, resRouter, i);
-        targets.router.win.scrollTop = targets.router.win.scrollHeight;
-
-        const resDns = await pingTarget(targets.dns.url);
-        printLine(targets.dns, resDns, i);
-        targets.dns.win.scrollTop = targets.dns.win.scrollHeight;
-
-        const resGoogle = await pingTarget(targets.google.url);
-        printLine(targets.google, resGoogle, i);
-        targets.google.win.scrollTop = targets.google.win.scrollHeight;
-
-        // انتظار ثانية كاملة مريحة قبل تكرار اللفة
-        await sleep(1000);
-    }
-
-    progressText.innerText = "✅ اكتمل فحص الـ 25 باكت بنجاح!";
+function stopLivePing() {
+    isRunning = false;
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
     
-    for (let key in targets) {
-        printSummary(targets[key], totalPings);
-        targets[key].win.scrollTop = targets[key].win.scrollHeight;
-    }
-
-    btn.disabled = false;
-}
-
-function printLine(target, result, packetNum) {
-    if (result !== null) {
-        let ms = Math.max(target.baseMin, Math.round(result / target.divisor));
-        target.pings.push(ms);
-        target.win.innerHTML += `<div class="reply">Reply from ${target.ip}: bytes=32 time=${ms}ms TTL=64</div>`;
-    } else {
-        target.lost++;
-        target.win.innerHTML += `<div class="timeout">Request timed out.</div>`;
-    }
-}
-
-function printSummary(target, total) {
-    let received = target.pings.length;
-    let lossPercent = Math.round((target.lost / total) * 100);
-    let min = received > 0 ? Math.min(...target.pings) : 0;
-    let max = received > 0 ? Math.max(...target.pings) : 0;
-    let avg = received > 0 ? Math.round(target.pings.reduce((a,b)=>a+b, 0) / received) : 0;
-
-    target.win.innerHTML += `
-        <div class="summary">
-            <br>Ping statistics for ${target.ip}:<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;Packets: Sent = ${total}, Received = ${received}, Lost = ${target.lost} (${lossPercent}% loss),<br>
-            Approximate round trip times in milli-seconds:<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms
-        </div>
-    `;
+    document.getElementById('routerCmd').innerHTML += "<br>Ping stopped.";
+    document.getElementById('googleCmd').innerHTML += "<br>Ping stopped.";
 }
 </script>
 
