@@ -1,46 +1,3 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فحص اتصال شبكة Max Net</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 480px; background: white; padding: 25px; margin: 20px auto; border-radius: 12px; box-shadow: 0px 4px 15px rgba(0,0,0,0.08); }
-        h2 { color: #1a73e8; margin-bottom: 5px; }
-        p.subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
-        .btn { background-color: #1a73e8; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.2s; }
-        .btn:hover { background-color: #1557b0; }
-        .result-box { margin-top: 15px; padding: 15px; border-radius: 8px; text-align: right; display: none; border-right: 5px solid #ccc; }
-        .status { font-weight: bold; margin-top: 5px; font-size: 14px; }
-        .good { background-color: #e6f4ea; color: #137333; border-right-color: #137333; }
-        .bad { background-color: #fce8e6; color: #c5221f; border-right-color: #c5221f; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>Max Net - الفحص الثلاثي الذكي</h2>
-    <p class="subtitle">اضغط على الزر أدناه لفحص استقرار اتصالك وتحديد مكان الخلل بدقة.</p>
-    
-    <button class="btn" onclick="runTripleTest()">إبدأ الفحص الشامل</button>
-
-    <div id="routerBox" class="result-box">
-        <b>1. جهاز الراوتر المنزلي (192.168.0.1):</b>
-        <div id="routerStatus" class="status">بانتظار بدء الفحص...</div>
-    </div>
-
-    <div id="dnsBox" class="result-box">
-        <b>2. سيرفر شبكة الشركة الرئيسي (109.224.14.2):</b>
-        <div id="dnsStatus" class="status">بانتظار بدء الفحص...</div>
-    </div>
-
-    <div id="googleBox" class="result-box">
-        <b>3. بوابة الإنترنت العالمية (8.8.8.8):</b>
-        <div id="googleStatus" class="status">بانتظار بدء الفحص...</div>
-    </div>
-</div>
-
 <script>
 function runTripleTest() {
     const boxes = {
@@ -60,12 +17,16 @@ function runTripleTest() {
 
     const timestamp = Date.now();
 
-    // 1. فحص الراوتر المنزلي (192.168.0.1)
-    let imgRouter = new Image();
+    // 1. فحص الراوتر المنزلي بطريقة ملائمة للحماية
     let startRouter = Date.now();
-    imgRouter.src = "http://192.168.0.1/favicon.ico?t=" + timestamp;
-
-    imgRouter.onload = imgRouter.onerror = function() {
+    fetch("http://192.168.0.1/", { mode: "no-cors", cache: "no-cache" })
+    .then(() => {
+        let diff = Date.now() - startRouter;
+        boxes.router.status.innerText = "✅ مستقر وسريع (" + diff + "ms). الراوتر مالتك سليم وما بيه تعليق.";
+        boxes.router.box.classList.add('good');
+    })
+    .catch(() => {
+        // إذا رفض الراوتر بسبب الـ CORS ولكن الاستجابة فورية
         let diff = Date.now() - startRouter;
         if (diff < 150) {
             boxes.router.status.innerText = "✅ مستقر وسريع (" + diff + "ms). الراوتر مالتك سليم وما بيه تعليق.";
@@ -74,16 +35,15 @@ function runTripleTest() {
             boxes.router.status.innerText = "❌ ضعيف أو يقطع (" + diff + "ms). الراوتر مالتك حامي أو معلّق ويسبب ضياع بيانات!";
             boxes.router.box.classList.add('bad');
         }
-    };
+    });
 
     // 2. فحص DNS الشركة (109.224.14.2)
     let imgDns = new Image();
     let startDns = Date.now();
     imgDns.src = "http://109.224.14.2/favicon.ico?t=" + timestamp;
-
     imgDns.onload = imgDns.onerror = function() {
         let diff = Date.now() - startDns;
-        if (diff < 250) {
+        if (diff < 200) {
             boxes.dns.status.innerText = "✅ مستقر (" + diff + "ms). الكيبل، النانو، والسويتشات واصلة للسيرفر بدون تقطيع.";
             boxes.dns.box.classList.add('good');
         } else {
@@ -96,7 +56,6 @@ function runTripleTest() {
     let imgGoogle = new Image();
     let startGoogle = Date.now();
     imgGoogle.src = "https://www.google.com/images/phd/px.gif?t=" + timestamp;
-
     imgGoogle.onload = imgGoogle.onerror = function() {
         let diff = Date.now() - startGoogle;
         if (diff < 300) {
@@ -109,6 +68,3 @@ function runTripleTest() {
     };
 }
 </script>
-
-</body>
-</html>
