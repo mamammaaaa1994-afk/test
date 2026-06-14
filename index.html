@@ -51,12 +51,14 @@
 </div>
 
 <script>
-function pingWithImage(url, timeout = 950) {
+// دالة فحص مبسطة ومضمونة لكل هدف على حدة لمنع الكراش بالمتصفح
+function pingTarget(url, timeout = 900) {
     return new Promise((resolve) => {
         const start = Date.now();
         const img = new Image();
+        
         let timer = setTimeout(() => {
-            img.src = "";
+            img.src = ""; 
             resolve(null);
         }, timeout);
 
@@ -70,7 +72,8 @@ function pingWithImage(url, timeout = 950) {
             }
         };
 
-        img.src = url + "/favicon.ico?nocache=" + start + Math.random();
+        // استخدام عشوائي كامل لكسر الكاش
+        img.src = url + "/favicon.ico?v=" + start + "_" + Math.floor(Math.random() * 1000);
     });
 }
 
@@ -98,23 +101,20 @@ async function runTrueCmdTest() {
     for (let i = 1; i <= totalPings; i++) {
         progressText.innerText = `جاري إرسال الباكت رقم (${i} من ${totalPings})...`;
 
-        const promises = [
-            pingWithImage(targets.router.url),
-            pingWithImage(targets.dns.url),
-            pingWithImage(targets.google.url)
-        ];
-
-        const results = await Promise.all(promises);
-
-        printLine(targets.router, results[0], i);
-        printLine(targets.dns, results[1], i);
-        printLine(targets.google, results[2], i);
-
-        // تصحيح السحب التلقائي هنا
+        // إرسال الطلبات بالتسلسل الصريح (واحد تلو الآخر) لتفادي صفنة المتصفح
+        const resRouter = await pingTarget(targets.router.url);
+        printLine(targets.router, resRouter, i);
         targets.router.win.scrollTop = targets.router.win.scrollHeight;
+
+        const resDns = await pingTarget(targets.dns.url);
+        printLine(targets.dns, resDns, i);
         targets.dns.win.scrollTop = targets.dns.win.scrollHeight;
+
+        const resGoogle = await pingTarget(targets.google.url);
+        printLine(targets.google, resGoogle, i);
         targets.google.win.scrollTop = targets.google.win.scrollHeight;
 
+        // انتظار ثانية كاملة مريحة قبل تكرار اللفة
         await sleep(1000);
     }
 
